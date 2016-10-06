@@ -24,13 +24,18 @@ app.get('/game/new', (req, res) => {
 })
 
 app.get('/game/singleplayer', (req, res) => {
-  res.render('singleplayer')
+
+  Game.create({})
+  .then(game => res.redirect(`/game/${game._id}`))
 })
 
 app.get('/game/twoplayer', (req, res) => {
   res.render('twoplayer')
 })
 
+app.get('/game/:id', (req, res) => {
+  res.render('singleplayer')
+})
 
 mongoose.Promise = Promise
 mongoose.connect(MONGODB_URL, () => {
@@ -39,15 +44,61 @@ mongoose.connect(MONGODB_URL, () => {
 
 const Game = mongoose.model('game', {
   score: {
-    player1: String,
-    player2: String,
+    player1: {
+      type: Number,
+      default: 0
+    },
+    player2: {
+      type: Number,
+      default: 0
+    },
   },
   result: String,
+  player1: String,
+  player2: String,
 })
+
+
+const attemptToJoinGameAsPlayer = (game, socket) => {
+  if (hasTwoPlayers(game)) {
+    //SO THIS RETURN KILLS THE REST OF THE .THENS?
+    return game
+  }
+
+  if (hasZeroPlayers(game)) {
+    game.player1 = socket.id
+  } else if (game.player1 && !game.player2) {
+    // player1 already connected and player2 is available
+    game.player2 = socket.id
+  }
+
+  return game
+}
+
+const hasTwoPlayers = game => !!(game.player1 && game.player2)
+const hasZeroPlayers = game => !game.player1 && !game.player2
 
 
 io.on('connect', socket => {
   console.log("socket connected:", socket)
+
+  const id = socket.handshake.headers.referer.split('/').slice(-1)[0]
+
+  Game.findById(id)
+  .then(game => attemptToJoinGameAsPlayer(game, socket))
+  .then(game => game.save())
+  .then(game => {
+    socket.join(game._id)
+    socket.gameId = game._id
+    io.to(game._id).emit('player joined', game)
+  })
+  .catch(err => {
+    socket.emit('error', err)
+    console.error(err)
+  })
+
+  console.log(`Socket connected: ${socket.id}`)
+
   socket.on('update coordinates', data => console.log("data:", data))
   socket.on('disconnect', () => console.log("DISCONNECTED:", socket))
 })
