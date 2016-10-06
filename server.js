@@ -16,7 +16,12 @@ app.set('view engine', 'pug')
 
 app.use(express.static('public'))
 
-app.get('/', (req, res) => res.render('index'))
+app.get('/', (req, res) => {
+  Game.find()
+  .then(games => res.render('index', { games }))
+
+})
+
 //
 app.get('/game/new', (req, res) => {
   res.render('newgame')
@@ -100,5 +105,19 @@ io.on('connect', socket => {
   console.log(`Socket connected: ${socket.id}`)
 
   socket.on('update coordinates', data => console.log("data:", data))
-  socket.on('disconnect', () => console.log("DISCONNECTED:", socket))
+  socket.on('disconnect', () => handleDisconnect(socket))
 })
+
+const handleDisconnect = socket => {
+  Game
+    .findById(socket.gameId)
+    .then(game => {
+      if (!game.result && (socket.id === game.player1 || socket.id === game.player2)) {
+        game.result = 'Disconnect'
+      }
+      //WHAT DOES THIS RETURN DO???
+      return game.save()
+    })
+    .then(g => io.to(g._id).emit('player disconnected', g))
+    .catch(console.error)
+}
