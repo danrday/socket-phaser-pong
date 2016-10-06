@@ -5,3 +5,8 @@ html
   body
     h1 Pong
     a(href="/game/new") New Game
+
+    h3 Join a game:
+
+    for game in games
+      li: a(href=`/game/${game._id}`) Game: #{game._id}
