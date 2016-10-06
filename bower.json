@@ -1,0 +1,21 @@
+{
+  "name": "pong",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Dan Day <danday@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/danrday/socket-phaser-pong",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "phaser": "^2.6.2"
+  }
+}

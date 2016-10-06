@@ -16,11 +16,20 @@ app.set('view engine', 'pug')
 
 app.use(express.static('public'))
 
-// app.get('/', (req, res) => res.render('home'))
+app.get('/', (req, res) => res.render('index'))
 //
-// app.get('/game', (req, res) => {
-//   Game.find().then(games => res.render('index', { games }))
-// })
+app.get('/game/new', (req, res) => {
+  res.render('newgame')
+  // Game.find().then(games => res.render('index', { games }))
+})
+
+app.get('/game/singleplayer', (req, res) => {
+  res.render('singleplayer')
+})
+
+app.get('/game/twoplayer', (req, res) => {
+  res.render('twoplayer')
+})
 
 
 mongoose.Promise = Promise
