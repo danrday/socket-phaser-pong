@@ -39,6 +39,6 @@ const Game = mongoose.model('game', {
 
 io.on('connect', socket => {
   console.log("socket connected:", socket)
-  // socket.on('new data' => data => console.log("data:", data))
+  socket.on('update coordinates', data => console.log("data:", data))
   socket.on('disconnect', () => console.log("DISCONNECTED:", socket))
 })

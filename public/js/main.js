@@ -91,11 +91,15 @@ let main = {
     } else if (player2.body.y > 499) {
       player2.body.y = 499
     }
-    
-    // socket.emit('tick', {
-    //   player1.body.y,
-    //   player2.body.y,
-    // })
+
+    socket.emit('update coordinates', {
+      player1_x : player1.body.x,
+      player1_y: player1.body.y,
+      player2_x: player2.body.x,
+      player2_y: player2.body.y,
+      ball_x: ball.body.x,
+      ball_y: ball.body.y
+    });
 
   },
   render: function() {
