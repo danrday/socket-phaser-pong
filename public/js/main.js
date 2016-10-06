@@ -6,6 +6,9 @@ let ball
 let cursors
 let topEdge
 let bottomEdge
+let ballX
+let ballY
+
 
 let main = {
   create: function() {
@@ -35,8 +38,8 @@ let main = {
         return 1
       }
     }
-    let ballX = (Math.floor(Math.random() * (1 + 150 - 50)) + 50) * direction()
-    let ballY = (Math.floor(Math.random() * (1 + 150 - 50)) + 50) * direction()
+    ballX = (Math.floor(Math.random() * (1 + 150 - 50)) + 50) * direction()
+    ballY = (Math.floor(Math.random() * (1 + 150 - 50)) + 50) * direction()
     ball.body.velocity.setTo(ballX, ballY)
     ball.body.bounce.set(1);
 
@@ -44,28 +47,43 @@ let main = {
     cursors = game.input.keyboard.createCursorKeys();
     console.log(game);
   },
+
   update: function() {
 
+    let accelBall = () => {
+      let accel = 0.1
+      if (ball.body.velocity.x > 0){
+        ball.body.velocity.x += accel
+      } else if (ball.body.velocity.x < 0){
+        ball.body.velocity.x -= accel
+      }
+      if (ball.body.velocity.y > 0){
+        ball.body.velocity.y += accel
+      } else if (ball.body.velocity.y < 0){
+        ball.body.velocity.y -= accel
+      }
+    }
+    accelBall()
 
     //movement
     player1.body.velocity.y = 0;
     player1.body.velocity.x = 0;
 
     if(cursors.up.isDown) {
-      player1.body.velocity.y -= 100;
+      player1.body.velocity.y -= 250;
     }
     else if(cursors.down.isDown) {
-      player1.body.velocity.y += 100;
+      player1.body.velocity.y += 250;
     }
     //movement for p2 -- temp
     player2.body.velocity.y = 0;
     player2.body.velocity.x = 0;
 
-    if(cursors.right.isDown) {
-      player2.body.velocity.y -= 100;
+    if(ball.body.y < player2.body.y) {
+      player2.body.velocity.y -= 250;
     }
-    else if(cursors.left.isDown) {
-      player2.body.velocity.y += 100;
+    else if(ball.body.y > player2.body.y) {
+      player2.body.velocity.y += 250;
     }
 
     //player collision
@@ -91,7 +109,7 @@ let main = {
     } else if (player2.body.y > 499) {
       player2.body.y = 499
     }
-    
+
     // socket.emit('tick', {
     //   player1.body.y,
     //   player2.body.y,
