@@ -119,9 +119,10 @@ io.on('connect', socket => {
   console.log(`Socket connected: ${socket.id}`)
 
   socket.on('update coordinates', data => {
-
-    console.log("coordinates :", data)
-    io.to(socket.gameId).emit('newcoords', data );
+    //Determine which player moved
+    console.log("Test coordinate data", data);
+    socket.emit('new coords', data);
+    // io.to(socket.gameId).emit('newcoords', data );
   })
 
   socket.on('disconnect', () => handleDisconnect(socket))

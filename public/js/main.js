@@ -12,6 +12,7 @@ let ballY
 let globalData = {}
 
 const determinePlayer = function( currentGame, socket, player1, player2 ) {
+  console.log("Test currentGame", currentGame);
   if ( currentGame.player1 === socket.id ) {
     return {
       player1_x : player1.body.x,
@@ -28,12 +29,9 @@ const determinePlayer = function( currentGame, socket, player1, player2 ) {
 }
 
 
-socket.on('newcoords', data => {
-  //If two players
-    // Set player one and player two
-
-  //If single player
+socket.on('new coords', data => {
   globalData = data
+  console.log("Test data", data);
 })
 
 
@@ -72,20 +70,26 @@ let main = {
 
 
     cursors = game.input.keyboard.createCursorKeys();
-    console.log(game);
   },
 
   update: function() {
 
-    // if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
-    //   console.log("GLOBAL DATA:", globalData)
-    //   player1.body.x = globalData.player1_x
-    //   player1.body.y = globalData.player1_y
-    //   player2.body.x = globalData.player2_x
-    //   player2.body.y = globalData.player2_y
-    //   ball.body.x = globalData.ball_x
-    //   ball.body.y = globalData.ball_y
-    // }
+    if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
+      console.log("GLOBAL DATA:", globalData)
+    } else {
+      if (globalData.player1_y) {
+        console.log("Test globalData.player1_x", globalData.player1_x);
+        player1.body.x = globalData.player1_x
+        player1.body.y = globalData.player1_y
+      } else {
+        console.log("Test globalData.player2_x", globalData.player2_x);
+        player2.body.x = globalData.player2_x
+        player2.body.y = globalData.player2_y
+        ball.body.x = globalData.ball_x
+        ball.body.y = globalData.ball_y
+      }
+    }
+
 
     let accelBall = () => {
       let accel = 0.1
@@ -160,7 +164,7 @@ let main = {
 
     //Store the coordinates of the active players to emit to the server
     let data = determinePlayer(currentGame, socket, player1, player2);
-    console.log("Test data", data);
+    console.log("determinePlayer data", data);
     socket.emit('update coordinates', data);
 
   },
