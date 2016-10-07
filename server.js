@@ -37,6 +37,10 @@ app.get('/game/twoplayer', (req, res) => {
   .then(game => res.redirect(`/game/${game._id}`))
 })
 
+app.get('/game/clone', (req, res) => {
+  res.render('serverclone')
+})
+
 app.get('/game/:id', (req, res) => {
   res.render('gameview')
 })
@@ -104,7 +108,11 @@ io.on('connect', socket => {
 
   console.log(`Socket connected: ${socket.id}`)
 
-  socket.on('update coordinates', data => console.log("data:", data))
+  socket.on('update coordinates', data => {
+    console.log("data:", data)
+    io.emit('newcoords', { data });
+  })
+
   socket.on('disconnect', () => handleDisconnect(socket))
 })
 
