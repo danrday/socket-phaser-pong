@@ -15,8 +15,16 @@ let menu = {
     let text = game.add.text(225, 250, "Start Game", { font: "65px Arial", fill:'#fff', align: "center" });
     text.inputEnabled = true;
     text.events.onInputUp.add(menu.up);
+
+    socket.on('start game', (data) => {
+      if (data) {
+        game.state.start('main');
+      }
+    });
+
   },
+
   up: function(item) {
-    game.state.start('main');
+    socket.emit('start room game', true);
   }
 }

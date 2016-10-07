@@ -3,9 +3,7 @@
 const socket = io();
 let currentGame;
 
-
-//listener
-
+//listeners
 socket.on('connect', () => {
   console.log(`User connected ${socket.id}`);
 });

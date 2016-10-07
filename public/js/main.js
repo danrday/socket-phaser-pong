@@ -12,7 +12,6 @@ let ballY
 let globalData = {}
 
 const determinePlayer = function( currentGame, socket, player1, player2 ) {
-  console.log("Test currentGame", currentGame);
   if ( currentGame.player1 === socket.id ) {
     return {
       player1_x : player1.body.x,
@@ -31,7 +30,6 @@ const determinePlayer = function( currentGame, socket, player1, player2 ) {
 
 socket.on('new coords', data => {
   globalData = data
-  console.log("Test data", data);
 })
 
 
@@ -74,21 +72,20 @@ let main = {
 
   update: function() {
 
-    if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
-      console.log("GLOBAL DATA:", globalData)
-    } else {
+    // if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
+    // } else {
       if (globalData.player1_y) {
-        console.log("Test globalData.player1_x", globalData.player1_x);
+        console.log("Player one coordinates sey");
         player1.body.x = globalData.player1_x
         player1.body.y = globalData.player1_y
-      } else {
-        console.log("Test globalData.player2_x", globalData.player2_x);
+      } else if (globalData.player2_y) {
+        console.log("Player two coordinates set");
         player2.body.x = globalData.player2_x
         player2.body.y = globalData.player2_y
         ball.body.x = globalData.ball_x
         ball.body.y = globalData.ball_y
       }
-    }
+    // }
 
 
     let accelBall = () => {
@@ -130,13 +127,6 @@ let main = {
       }
     }
 
-    //
-    // if(ball.body.y < player2.body.y) {
-    //   player2.body.velocity.y -= 250;
-    // }
-    // else if(ball.body.y > player2.body.y) {
-    //   player2.body.velocity.y += 250;
-    // }
 
     //player collision
     game.physics.arcade.collide(player1, topEdge);
@@ -164,7 +154,6 @@ let main = {
 
     //Store the coordinates of the active players to emit to the server
     let data = determinePlayer(currentGame, socket, player1, player2);
-    console.log("determinePlayer data", data);
     socket.emit('update coordinates', data);
 
   },

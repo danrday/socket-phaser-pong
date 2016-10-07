@@ -118,14 +118,23 @@ io.on('connect', socket => {
 
   console.log(`Socket connected: ${socket.id}`)
 
+  socket.on('start room game', (data) => {
+    console.log("Start room game", data);
+    if (data) {
+      io.to(socket.gameId).emit('start game', true)
+    }
+  });
+
   socket.on('update coordinates', data => {
     //Determine which player moved
-    console.log("Test coordinate data", data);
-    socket.emit('new coords', data);
-    // io.to(socket.gameId).emit('newcoords', data );
+    // socket.emit('new coords', data);
+    io.to(socket.gameId).emit('newcoords', data );
   })
 
-  socket.on('disconnect', () => handleDisconnect(socket))
+  socket.on('disconnect', () => {
+    console.log(`User ${socket.id} disconnected`);
+    // handleDisconnect(socket)
+  })
 })
 
 const handleDisconnect = socket => {
