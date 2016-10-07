@@ -25,22 +25,22 @@ app.get('/', (req, res) => {
 //
 app.get('/game/new', (req, res) => {
   res.render('newgame')
-  // Game.find().then(games => res.render('index', { games }))
 })
 
 app.get('/game/singleplayer', (req, res) => {
-
   Game.create({})
   .then(game => res.redirect(`/game/${game._id}`))
 })
 
 app.get('/game/twoplayer', (req, res) => {
-  res.render('twoplayer')
+  Game.create({})
+  .then(game => res.redirect(`/game/${game._id}`))
 })
 
 app.get('/game/:id', (req, res) => {
-  res.render('singleplayer')
+  res.render('gameview')
 })
+
 
 mongoose.Promise = Promise
 mongoose.connect(MONGODB_URL, () => {
@@ -85,7 +85,7 @@ const hasZeroPlayers = game => !game.player1 && !game.player2
 
 
 io.on('connect', socket => {
-  console.log("socket connected:", socket)
+  console.log("socket connected:", socket.id)
 
   const id = socket.handshake.headers.referer.split('/').slice(-1)[0]
 
