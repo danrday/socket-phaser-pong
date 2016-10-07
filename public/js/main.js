@@ -75,11 +75,11 @@ let main = {
     // if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
     // } else {
       if (globalData.player1_y) {
-        console.log("Player one coordinates sey");
+        // console.log("Player one coordinates set");
         player1.body.x = globalData.player1_x
         player1.body.y = globalData.player1_y
       } else if (globalData.player2_y) {
-        console.log("Player two coordinates set");
+        // console.log("Player two coordinates set");
         player2.body.x = globalData.player2_x
         player2.body.y = globalData.player2_y
         ball.body.x = globalData.ball_x

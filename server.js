@@ -128,7 +128,7 @@ io.on('connect', socket => {
   socket.on('update coordinates', data => {
     //Determine which player moved
     // socket.emit('new coords', data);
-    io.to(socket.gameId).emit('newcoords', data );
+    io.to(socket.gameId).emit('new coords', data );
   })
 
   socket.on('disconnect', () => {
