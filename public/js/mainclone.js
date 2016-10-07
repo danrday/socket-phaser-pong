@@ -9,14 +9,15 @@ let bottomEdge
 let ballX
 let ballY
 
-// let globalData = {}
-//
-// socket.on('newcoords', data => {
-//   // modifiedData = data
-//   // console.log("new coords data:", data)
-//   // main.update(data)
-//   globalData = data
-// })
+
+let globalData = null
+
+socket.on('newcoords', data => {
+  // modifiedData = data
+  // console.log("new coords data:", data)
+  // main.update(data)
+  globalData = data
+})
 
 
 let main = {
@@ -59,15 +60,18 @@ let main = {
 
   update: function() {
 
-    // if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
-    //   console.log("GLOBAL DATA:", globalData)
-    //   player1.body.x = globalData.player1_x
-    //   player1.body.y = globalData.player1_y
-    //   player2.body.x = globalData.player2_x
-    //   player2.body.y = globalData.player2_y
-    //   ball.body.x = globalData.ball_x
-    //   ball.body.y = globalData.ball_y
-    // }
+    // Object.keys(globalData).length === 0 && globalData.constructor === Object
+
+    if ( globalData !== null ) {
+      console.log("GLOBAL DATA:", globalData)
+      console.log("TEST")
+      // player1.body.x = globalData.player1_x
+      player1.body.y = globalData.data.player1_y
+      // player2.body.x = globalData.player2_x
+      player2.body.y = globalData.data.player2_y
+      ball.body.x = globalData.data.ball_x
+      ball.body.y = globalData.data.ball_y
+    }
 
     let accelBall = () => {
       let accel = 0.1
@@ -129,14 +133,14 @@ let main = {
       player2.body.y = 499
     }
 
-    socket.emit('update coordinates', {
-      player1_x : player1.body.x,
-      player1_y: player1.body.y,
-      player2_x: player2.body.x,
-      player2_y: player2.body.y,
-      ball_x: ball.body.x,
-      ball_y: ball.body.y
-    });
+    // socket.emit('update coordinates', {
+    //   player1_x : player1.body.x,
+    //   player1_y: player1.body.y,
+    //   player2_x: player2.body.x,
+    //   player2_y: player2.body.y,
+    //   ball_x: ball.body.x,
+    //   ball_y: ball.body.y
+    // });
 
   },
   render: function() {
