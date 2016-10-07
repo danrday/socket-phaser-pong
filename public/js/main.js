@@ -9,14 +9,32 @@ let bottomEdge
 let ballX
 let ballY
 
-// let globalData = {}
-//
-// socket.on('newcoords', data => {
-//   // modifiedData = data
-//   // console.log("new coords data:", data)
-//   // main.update(data)
-//   globalData = data
-// })
+let globalData = {}
+
+const determinePlayer = function( currentGame, socket, player1, player2 ) {
+  if ( currentGame.player1 === socket.id ) {
+    return {
+      player1_x : player1.body.x,
+      player1_y: player1.body.y
+    }
+  } else if ( currentGame.player2 === socket.id ) {
+    return {
+      player2_x: player2.body.x,
+      player2_y: player2.body.y,
+      ball_x: ball.body.x,
+      ball_y: ball.body.y
+    }
+  }
+}
+
+
+socket.on('newcoords', data => {
+  //If two players
+    // Set player one and player two
+
+  //If single player
+  globalData = data
+})
 
 
 let main = {
@@ -88,22 +106,33 @@ let main = {
     player1.body.velocity.y = 0;
     player1.body.velocity.x = 0;
 
-    if(cursors.up.isDown) {
-      player1.body.velocity.y -= 250;
-    }
-    else if(cursors.down.isDown) {
-      player1.body.velocity.y += 250;
-    }
     //movement for p2 -- temp
     player2.body.velocity.y = 0;
     player2.body.velocity.x = 0;
 
-    if(ball.body.y < player2.body.y) {
-      player2.body.velocity.y -= 250;
+    if ( currentGame.player1 === socket.id ) {
+      if(cursors.up.isDown) {
+        player1.body.velocity.y -= 250;
+      }
+      else if(cursors.down.isDown) {
+        player1.body.velocity.y += 250;
+      }
+    } else if ( currentGame.player2 === socket.id ) {
+      if(cursors.up.isDown) {
+        player2.body.velocity.y -= 250;
+      }
+      else if(cursors.down.isDown) {
+        player2.body.velocity.y += 250;
+      }
     }
-    else if(ball.body.y > player2.body.y) {
-      player2.body.velocity.y += 250;
-    }
+
+    //
+    // if(ball.body.y < player2.body.y) {
+    //   player2.body.velocity.y -= 250;
+    // }
+    // else if(ball.body.y > player2.body.y) {
+    //   player2.body.velocity.y += 250;
+    // }
 
     //player collision
     game.physics.arcade.collide(player1, topEdge);
@@ -129,14 +158,10 @@ let main = {
       player2.body.y = 499
     }
 
-    socket.emit('update coordinates', {
-      player1_x : player1.body.x,
-      player1_y: player1.body.y,
-      player2_x: player2.body.x,
-      player2_y: player2.body.y,
-      ball_x: ball.body.x,
-      ball_y: ball.body.y
-    });
+    //Store the coordinates of the active players to emit to the server
+    let data = determinePlayer(currentGame, socket, player1, player2);
+    console.log("Test data", data);
+    socket.emit('update coordinates', data);
 
   },
   render: function() {

@@ -87,9 +87,17 @@ const attemptToJoinGameAsPlayer = (game, socket) => {
 const hasTwoPlayers = game => !!(game.player1 && game.player2)
 const hasZeroPlayers = game => !game.player1 && !game.player2
 
+// let updatedCoordinates = {
+//   player1_x: null
+//   player1_y: null
+//   player2_x: null
+//   player2_y: null
+//   ball_x: null
+//   ball_y: null
+// }
 
 io.on('connect', socket => {
-  console.log("socket connected:", socket.id)
+  // console.log("socket connected:", socket.id)
 
   const id = socket.handshake.headers.referer.split('/').slice(-1)[0]
 
@@ -97,8 +105,10 @@ io.on('connect', socket => {
   .then(game => attemptToJoinGameAsPlayer(game, socket))
   .then(game => game.save())
   .then(game => {
-    socket.join(game._id)
     socket.gameId = game._id
+    socket.player1Id = game.player1
+    socket.player2Id = game.player2
+    socket.join(game._id)
     io.to(game._id).emit('player joined', game)
   })
   .catch(err => {
@@ -109,8 +119,9 @@ io.on('connect', socket => {
   console.log(`Socket connected: ${socket.id}`)
 
   socket.on('update coordinates', data => {
-    console.log("data:", data)
-    io.emit('newcoords', { data });
+
+    console.log("coordinates :", data)
+    io.to(socket.gameId).emit('newcoords', data );
   })
 
   socket.on('disconnect', () => handleDisconnect(socket))
