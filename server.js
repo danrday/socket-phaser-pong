@@ -25,17 +25,16 @@ app.get('/', (req, res) => {
 //
 app.get('/game/new', (req, res) => {
   res.render('newgame')
-  // Game.find().then(games => res.render('index', { games }))
 })
 
 app.get('/game/singleplayer', (req, res) => {
-
   Game.create({})
   .then(game => res.redirect(`/game/${game._id}`))
 })
 
 app.get('/game/twoplayer', (req, res) => {
-  res.render('twoplayer')
+  Game.create({})
+  .then(game => res.redirect(`/game/${game._id}`))
 })
 
 app.get('/game/clone', (req, res) => {
@@ -43,8 +42,9 @@ app.get('/game/clone', (req, res) => {
 })
 
 app.get('/game/:id', (req, res) => {
-  res.render('singleplayer')
+  res.render('gameview')
 })
+
 
 mongoose.Promise = Promise
 mongoose.connect(MONGODB_URL, () => {
@@ -87,9 +87,17 @@ const attemptToJoinGameAsPlayer = (game, socket) => {
 const hasTwoPlayers = game => !!(game.player1 && game.player2)
 const hasZeroPlayers = game => !game.player1 && !game.player2
 
+// let updatedCoordinates = {
+//   player1_x: null
+//   player1_y: null
+//   player2_x: null
+//   player2_y: null
+//   ball_x: null
+//   ball_y: null
+// }
 
 io.on('connect', socket => {
-  console.log("socket connected:", socket)
+  // console.log("socket connected:", socket.id)
 
   const id = socket.handshake.headers.referer.split('/').slice(-1)[0]
 
@@ -97,8 +105,10 @@ io.on('connect', socket => {
   .then(game => attemptToJoinGameAsPlayer(game, socket))
   .then(game => game.save())
   .then(game => {
-    socket.join(game._id)
     socket.gameId = game._id
+    socket.player1Id = game.player1
+    socket.player2Id = game.player2
+    socket.join(game._id)
     io.to(game._id).emit('player joined', game)
   })
   .catch(err => {
@@ -108,12 +118,23 @@ io.on('connect', socket => {
 
   console.log(`Socket connected: ${socket.id}`)
 
+  socket.on('start room game', (data) => {
+    console.log("Start room game", data);
+    if (data) {
+      io.to(socket.gameId).emit('start game', true)
+    }
+  });
+
   socket.on('update coordinates', data => {
-    console.log("data:", data)
-    io.emit('newcoords', { data });
+    //Determine which player moved
+    // socket.emit('new coords', data);
+    io.to(socket.gameId).emit('new coords', data );
   })
 
-  socket.on('disconnect', () => handleDisconnect(socket))
+  socket.on('disconnect', () => {
+    console.log(`User ${socket.id} disconnected`);
+    // handleDisconnect(socket)
+  })
 })
 
 const handleDisconnect = socket => {
