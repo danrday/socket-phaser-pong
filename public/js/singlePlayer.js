@@ -12,12 +12,12 @@ let ballY
 
 let globalData = null
 
-socket.on('newcoords', data => {
-  // modifiedData = data
-  // console.log("new coords data:", data)
-  // main.update(data)
-  globalData = data
-})
+// socket.on('newcoords', data => {
+//   // modifiedData = data
+//   // console.log("new coords data:", data)
+//   // main.update(data)
+//   globalData = data
+// })
 
 
 let main = {

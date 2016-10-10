@@ -17,7 +17,7 @@ app.set('view engine', 'pug')
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-  Game.find()
+  Game.find({ gameType: 'multiple' })
   .then(games => res.render('index', { games }))
 
 })
@@ -28,12 +28,12 @@ app.get('/game/new', (req, res) => {
 })
 
 app.get('/game/singleplayer', (req, res) => {
-  Game.create({})
+  Game.create({ gameType: 'single' })
   .then(game => res.redirect(`/game/${game._id}`))
 })
 
 app.get('/game/twoplayer', (req, res) => {
-  Game.create({})
+  Game.create({ gameType: 'multiple' })
   .then(game => res.redirect(`/game/${game._id}`))
 })
 
@@ -42,7 +42,15 @@ app.get('/game/clone', (req, res) => {
 })
 
 app.get('/game/:id', (req, res) => {
-  res.render('gameview')
+  console.log("Test req.url", req.params.id);
+  Game.findOne({ _id: req.params.id })
+  .then((game) => {
+    if (game.gameType === 'single') {
+      res.render('singlePlayer');
+    } else {
+      res.render('gameview');
+    }
+  });
 })
 
 
@@ -65,6 +73,7 @@ const Game = mongoose.model('game', {
   result: String,
   player1: String,
   player2: String,
+  gameType: String
 })
 
 
@@ -87,18 +96,7 @@ const attemptToJoinGameAsPlayer = (game, socket) => {
 const hasTwoPlayers = game => !!(game.player1 && game.player2)
 const hasZeroPlayers = game => !game.player1 && !game.player2
 
-// let updatedCoordinates = {
-//   player1_x: null
-//   player1_y: null
-//   player2_x: null
-//   player2_y: null
-//   ball_x: null
-//   ball_y: null
-// }
-
 io.on('connect', socket => {
-  // console.log("socket connected:", socket.id)
-
   const id = socket.handshake.headers.referer.split('/').slice(-1)[0]
 
   Game.findById(id)
@@ -127,7 +125,6 @@ io.on('connect', socket => {
 
   socket.on('update coordinates', data => {
     //Determine which player moved
-    // socket.emit('new coords', data);
     io.to(socket.gameId).emit('new coords', data );
   })
 
