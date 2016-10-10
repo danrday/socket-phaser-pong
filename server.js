@@ -17,7 +17,7 @@ app.set('view engine', 'pug')
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-  Game.find()
+  Game.find({ gameType: 'multiple' })
   .then(games => res.render('index', { games }))
 
 })
