@@ -1,6 +1,9 @@
 # Socket Phaser Pong
 ---
 
+###### Desc: Game play screen shot
+![Screen Shot of Single Player game](./screenshot1.png)
+
 ### Collaborators
 View [Dan Day's]('https://github.com/danrday') Github
 
