@@ -48,7 +48,7 @@ app.get('/game/:id', (req, res) => {
     if (game.gameType === 'single') {
       res.render('singlePlayer');
     } else {
-      res.render('gameview');
+      res.render('multiplayer');
     }
   });
 })
