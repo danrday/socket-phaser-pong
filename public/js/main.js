@@ -15,7 +15,8 @@ const determinePlayer = function( currentGame, socket, player1, player2 ) {
   if ( currentGame.player1 === socket.id ) {
     return {
       player1_x : player1.body.x,
-      player1_y: player1.body.y
+      player1_y: player1.body.y,
+      player1_velocity: player1.body.velocity.y
     }
   } else if ( currentGame.player2 === socket.id ) {
     return {
@@ -31,6 +32,26 @@ const determinePlayer = function( currentGame, socket, player1, player2 ) {
 socket.on('new coords', data => {
   globalData = data
 })
+
+
+//lag stuff
+
+let player1_velocity;
+
+let player1Moving = false;
+
+socket.on('player1Move', data=> {
+  player1.body.velocity.y = data.player1_velocity
+  player1Moving = true
+})
+
+//lag stuff
+
+
+let upKeyPress = false
+// let downKeyPress = false
+// let upKeyRelease = false
+// let downKeyRelease = false
 
 
 let main = {
@@ -72,6 +93,10 @@ let main = {
 
   update: function() {
 
+    if(player1Moving) {
+      player1.body.velocity.y -= player1Velocity;
+    }
+
     // if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
     // } else {
       if (globalData.player1_y) {
@@ -111,9 +136,29 @@ let main = {
     player2.body.velocity.y = 0;
     player2.body.velocity.x = 0;
 
+    // let upKeyPress = false
+    // let downKeyPress = false
+    // let upKeyRelease = false
+    // let downKeyRelease = false
+
     if ( currentGame.player1 === socket.id ) {
       if(cursors.up.isDown) {
+        if(upKeyPress === false) {
+          let data = determinePlayer(currentGame, socket, player1, player2);
+          socket.emit('player1Move', data);
+          console.log("ONCE", data)
+          upKeyPress = true
+        }
         player1.body.velocity.y -= 250;
+      } else if(cursors.up.isUp) {
+          upKeyPress = false
+        // if(upKeyPress === false) {
+          // let data = determinePlayer(currentGame, socket, player1, player2);
+          // socket.emit('player1Move', data);
+          // console.log("ONCE", data)
+          // upKeyPress = true
+
+        // player1.body.velocity.y -= 250;
       }
       else if(cursors.down.isDown) {
         player1.body.velocity.y += 250;
@@ -153,11 +198,22 @@ let main = {
     }
 
     //Store the coordinates of the active players to emit to the server
-    let data = determinePlayer(currentGame, socket, player1, player2);
-    socket.emit('update coordinates', data);
 
   },
   render: function() {
     // game.debug.spriteInfo(ball, 32, 32);
   }
+
 }
+
+
+
+
+// let refresh = function () {
+//   let data = determinePlayer(currentGame, socket, player1, player2);
+//   console.log("REFRESH")
+//   socket.emit('update coordinates', data);
+// }
+
+
+// setInterval(refresh, 1000)
