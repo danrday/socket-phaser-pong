@@ -5,13 +5,13 @@
 ![Screen Shot of Single Player game](./screenshot1.png)
 
 ### Collaborators
-View [Dan Day's]('https://github.com/danrday') Github
+View [Dan Day's](https://github.com/danrday) Github
 
 
-View [Alex Craven's]('https://github.com/wacraven') Github
+View [Alex Craven's](https://github.com/wacraven) Github
 
 
-View [Dominic Serrano's]('https://github.com/DominicSerranoC14') Github
+View [Dominic Serrano's](https://github.com/DominicSerranoC14) Github
 
 ---
 ### Technologies Used
