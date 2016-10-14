@@ -11,6 +11,9 @@ let ballY
 
 let globalData = {}
 
+let player1_velocity;
+
+
 const determinePlayer = function( currentGame, socket, player1, player2 ) {
   if ( currentGame.player1 === socket.id ) {
     return {
@@ -22,6 +25,7 @@ const determinePlayer = function( currentGame, socket, player1, player2 ) {
     return {
       player2_x: player2.body.x,
       player2_y: player2.body.y,
+      player2_velocity: player2.body.velocity.y,
       ball_x: ball.body.x,
       ball_y: ball.body.y
     }
@@ -36,20 +40,42 @@ socket.on('new coords', data => {
 
 //lag stuff
 
-let player1_velocity;
+
 
 let player1Moving = false;
+let player2Moving = false;
 
-socket.on('player1Move', data=> {
-  player1.body.velocity.y = data.player1_velocity
-  player1Moving = true
+let opponentVelocity = 0;
+
+socket.on('player1Change', data=> {
+  console.log('player1data', data)
+  if (currentGame.player2 === socket.id) {
+    opponentVelocity = data.player1_velocity
+    player1.body.x = globalData.player1_x
+    player1.body.y = globalData.player1_y
+  }
+  player1Moving = !player1Moving
+  console.log('player1Moving', player1Moving)
 })
+
+socket.on('player2Change', data=> {
+    console.log('player2data', data)
+  if (currentGame.player1 === socket.id) {
+    player2.body.x = globalData.player2_x
+    player2.body.y = globalData.player2_y
+  }
+    console.log('player2Moving', player2Moving)
+    player2Moving = !player2Moving
+})
+
 
 //lag stuff
 
 
 let upKeyPress = false
-// let downKeyPress = false
+let downKeyPress = false
+
+let initialBallState = null
 // let upKeyRelease = false
 // let downKeyRelease = false
 
@@ -93,23 +119,32 @@ let main = {
 
   update: function() {
 
-    if(player1Moving) {
-      player1.body.velocity.y -= player1Velocity;
-    }
+    // console.log('player1Moving', player1Moving)
+    // console.log('player2Moving', player2Moving)
 
     // if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
     // } else {
-      if (globalData.player1_y) {
-        // console.log("Player one coordinates set");
-        player1.body.x = globalData.player1_x
-        player1.body.y = globalData.player1_y
-      } else if (globalData.player2_y) {
-        // console.log("Player two coordinates set");
-        player2.body.x = globalData.player2_x
-        player2.body.y = globalData.player2_y
-        ball.body.x = globalData.ball_x
-        ball.body.y = globalData.ball_y
-      }
+      // if (globalData.player1_y) {
+      //   // console.log("Player one coordinates set");
+      //   player1.body.x = globalData.player1_x
+      //   player1.body.y = globalData.player1_y
+      // } else if (globalData.player2_y) {
+      //   // console.log("Player two coordinates set");
+      //   player2.body.x = globalData.player2_x
+      //   player2.body.y = globalData.player2_y
+      //   ball.body.x = globalData.ball_x
+      //   ball.body.y = globalData.ball_y
+      // }
+    // }
+
+    // if (player1Moving) {
+    //   player1.body.x = globalData.player1_x
+    //   player1.body.y = globalData.player1_y
+    //   player1.body.velocity.y = globalData.player1_velocity
+    // } else if (player2Moving) {
+    //   player2.body.x = globalData.player2_x
+    //   player2.body.y = globalData.player2_y
+    //   player2.body.velocity.y = globalData.player2_velocity
     // }
 
 
@@ -128,6 +163,8 @@ let main = {
     }
     accelBall()
 
+    let data = determinePlayer(currentGame, socket, player1, player2);
+
     //movement
     player1.body.velocity.y = 0;
     player1.body.velocity.x = 0;
@@ -136,40 +173,78 @@ let main = {
     player2.body.velocity.y = 0;
     player2.body.velocity.x = 0;
 
-    // let upKeyPress = false
-    // let downKeyPress = false
-    // let upKeyRelease = false
-    // let downKeyRelease = false
 
     if ( currentGame.player1 === socket.id ) {
+
+      player2.body.velocity.y = opponentVelocity
+
       if(cursors.up.isDown) {
         if(upKeyPress === false) {
-          let data = determinePlayer(currentGame, socket, player1, player2);
+          player1.body.velocity.y -= 250
+          data.player1_velocity -= 250
           socket.emit('player1Move', data);
-          console.log("ONCE", data)
           upKeyPress = true
+        } else {
+          player1.body.velocity.y -= 250;
         }
-        player1.body.velocity.y -= 250;
-      } else if(cursors.up.isUp) {
-          upKeyPress = false
-        // if(upKeyPress === false) {
-          // let data = determinePlayer(currentGame, socket, player1, player2);
-          // socket.emit('player1Move', data);
-          // console.log("ONCE", data)
-          // upKeyPress = true
+      } else {
+        if (upKeyPress === true)
+        data.player1_velocity = 0
+        socket.emit('player1Move', data);
+        upKeyPress = false
+      }
 
-        // player1.body.velocity.y -= 250;
+      if(cursors.down.isDown) {
+        if(downKeyPress === false) {
+          player1.body.velocity.y += 250;
+          socket.emit('player1Move', data);
+          downKeyPress = true
+        } else {
+          player1.body.velocity.y += 250;
+        }
+      } else {
+        if (downKeyPress === true)
+        data.player1_velocity = 0
+        socket.emit('player1Move', data);
+        downKeyPress = false
       }
-      else if(cursors.down.isDown) {
-        player1.body.velocity.y += 250;
-      }
-    } else if ( currentGame.player2 === socket.id ) {
+
+
+
+    }
+    else if ( currentGame.player2 === socket.id ) {
+
+      player1.body.velocity.y = opponentVelocity
+
       if(cursors.up.isDown) {
-        player2.body.velocity.y -= 250;
+        if(upKeyPress === false) {
+          player2.body.velocity.y -= 250;
+          data.player1_velocity -=250
+          socket.emit('player2Move', data);
+          upKeyPress = true
+        } else {
+          player2.body.velocity.y -= 250;
+        }
+      } else {
+        if (upKeyPress === true)
+        socket.emit('player2Move', data);
+        upKeyPress = false
       }
-      else if(cursors.down.isDown) {
+
+      if (cursors.down.isDown) {
+        if(downKeyPress === false) {
+          player2.body.velocity.y += 250;
+          socket.emit('player2Move', data);
+          downKeyPress = true
+        } else {
         player2.body.velocity.y += 250;
       }
+    } else {
+      if (downKeyPress === true)
+      socket.emit('player2Move', data);
+      downKeyPress = false
+    }
+
     }
 
 
@@ -212,8 +287,11 @@ let main = {
 // let refresh = function () {
 //   let data = determinePlayer(currentGame, socket, player1, player2);
 //   console.log("REFRESH")
+//
+//   // ball.body.x = globalData.ball_x
+//   // ball.body.y = globalData.ball_y
 //   socket.emit('update coordinates', data);
 // }
-
-
+//
+//
 // setInterval(refresh, 1000)

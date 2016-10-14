@@ -123,6 +123,20 @@ io.on('connect', socket => {
     }
   });
 
+  //lag stuff
+
+  socket.on('player1Move', data => {
+    console.log('player1Move')
+    io.to(socket.gameId).emit('player1Change', data );
+  })
+
+  socket.on('player2Move', data => {
+        console.log('player2Move')
+    io.to(socket.gameId).emit('player2Change', data );
+  })
+
+  //lag stuff
+
   socket.on('update coordinates', data => {
     //Determine which player moved
     io.to(socket.gameId).emit('new coords', data );
