@@ -1,10 +1,9 @@
-doctype html
-html
-  head
-    meta(charset='utf-8')
-    title test
+extends layout.pug
+
+block content
+
   body
-    h1 Pong
+
     #gameDiv
     script(src='/socket.io/socket.io.js')
     script(src='/lib/phaser/build/phaser.min.js')
