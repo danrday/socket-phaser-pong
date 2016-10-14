@@ -133,6 +133,30 @@ let main = {
   update: function() {
 
 
+    if ( currentGame.player1 === socket.id ) {
+
+    let setBallData = function() {
+      return {
+        x : ball.body.x,
+        y : ball.body.y,
+        xv : ball.body.velocity.x,
+        yv : ball.body.velocity.y
+      }
+    }
+
+    let ballData = setBallData()
+
+    let emitBallData = function() {
+      console.log("EMIT BALL DATA", ballData)
+      socket.emit('ballData', ballData)
+    }
+
+    emitBallData()
+
+    // setInterval(emitBallData, 1000)
+
+    }
+
 
     // console.log('player1Moving', player1Moving)
     // console.log('player2Moving', player2Moving)
@@ -334,6 +358,8 @@ let main = {
 //   socket.emit('ballData', ballData)
 // }
 //
+
+
 // setInterval(emitBallData, 1000)
 //
 // }
