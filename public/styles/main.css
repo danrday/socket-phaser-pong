@@ -1,0 +1,58 @@
+body {
+  font-size: 20px;
+  text-align: center;
+  font-family: 'Press Start 2P', cursive;
+  background: black;
+  color: green;
+  border: dotted .5rem white;
+  margin: 5rem;
+}
+
+h1 {
+  margin-bottom: 4rem;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}
+
+a:hover {
+  color: blue;
+  text-shadow: 1px 1px 1px white;
+}
+
+p {
+  margin: 3rem;
+}
+
+canvas {
+  margin: auto;
+}
+
+#gameDiv {
+  width: auto;
+}
+
+.blink {
+  animation-duration: 4s;
+  animation-name: blink-item;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink-item {
+  0% {
+    color: white;
+  }
+  25% {
+    color: white;
+  }
+  50% {
+    color: green;
+  }
+  75% {
+    color: white;
+  }
+  100% {
+    color: white;
+}

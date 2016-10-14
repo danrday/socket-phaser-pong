@@ -1,9 +1,11 @@
-doctype
-html
-  head
-    title Pong
+extends layout.pug
+
+block content
+
   body
     h1 New Game
-    a(href="/game/singleplayer") Single Player
+    p
+      a(href="/game/singleplayer") Single Player
     h1 ---
-    a(href="/game/twoplayer") Two Player
+    p
+      a(href="/game/twoplayer") Two Player

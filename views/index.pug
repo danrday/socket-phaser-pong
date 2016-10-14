@@ -1,12 +1,14 @@
-doctype
-html
-  head
-    title Pong
+extends layout.pug
+
+block content
+
   body
-    h1 Pong
-    a(href="/game/new") New Game
+    h1 Socket Phaser Pong
+    p
+      a(href="/game/new") Create New Game
 
     h3 Join a game:
 
     for game in games
-      li: a(href=`/game/${game._id}`) Game: #{game._id}
+      p
+        a.blink(href=`/game/${game._id}`) Join Game #{game.gameDisplayId}: Waiting for second player
