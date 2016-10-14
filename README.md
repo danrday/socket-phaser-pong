@@ -1,6 +1,6 @@
 # Socket Phaser Pong
 ---
-Check out our deployed app [here](socket-phaser-pong.herokuapp.com)!
+Check out our deployed app [here](https://socket-phaser-pong.herokuapp.com)!
 
 ###### Desc: Game play screen shot
 ![Screen Shot of Single Player game](./screenshot1.png)
