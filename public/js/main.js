@@ -121,8 +121,8 @@ let main = {
         return 1
       }
     }
-    ballX = (Math.floor(Math.random() * (1 + 150 - 50)) + 50) * direction()
-    ballY = (Math.floor(Math.random() * (1 + 150 - 50)) + 50) * direction()
+    ballX = (Math.floor(Math.random() * (1 + 150 - 50)) + 150) * direction()
+    ballY = (Math.floor(Math.random() * (1 + 150 - 50)) + 175) * direction()
     ball.body.velocity.setTo(ballX, ballY)
     ball.body.bounce.set(1);
 
