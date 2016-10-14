@@ -11,18 +11,23 @@ let ballY
 
 let globalData = {}
 
+let player1_velocity;
+
+
 const determinePlayer = function( currentGame, socket, player1, player2 ) {
   if ( currentGame.player1 === socket.id ) {
     return {
       player1_x : player1.body.x,
-      player1_y: player1.body.y
+      player1_y: player1.body.y,
+      player1_velocity: player1.body.velocity.y
     }
   } else if ( currentGame.player2 === socket.id ) {
     return {
       player2_x: player2.body.x,
       player2_y: player2.body.y,
-      ball_x: ball.body.x,
-      ball_y: ball.body.y
+      player2_velocity: player2.body.velocity.y
+      // ball_x: ball.body.x,
+      // ball_y: ball.body.y
     }
   }
 }
@@ -31,6 +36,61 @@ const determinePlayer = function( currentGame, socket, player1, player2 ) {
 socket.on('new coords', data => {
   globalData = data
 })
+
+
+//lag stuff
+
+
+
+let player1Moving = false;
+let player2Moving = false;
+
+let opponentVelocity = 0;
+
+socket.on('serverBallData', data => {
+  if ( currentGame.player2 === socket.id ) {
+    ball.body.x = data.x
+    ball.body.y = data.y
+    ball.body.velocity.x = data.xv
+    ball.body.velocity.y = data.yv
+  }
+})
+
+
+socket.on('player1Change', data=> {
+  // console.log('player1data', data)
+  if (currentGame.player2 === socket.id) {
+    opponentVelocity = data.player1_velocity
+    player1.body.x = globalData.player1_x
+    player1.body.y = globalData.player1_y
+  }
+  player1Moving = !player1Moving
+  // console.log('player1Moving', player1Moving)
+})
+
+socket.on('player2Change', data=> {
+    console.log('player2data', data)
+  if (currentGame.player1 === socket.id) {
+    opponentVelocity = data.player2_velocity
+    player2.body.x = globalData.player2_x
+    player2.body.y = globalData.player2_y
+  }
+    console.log('player2Moving', player2Moving)
+    player2Moving = !player2Moving
+})
+
+
+//lag stuff
+
+
+let upKeyPress = false
+let downKeyPress = false
+
+
+
+
+// let upKeyRelease = false
+// let downKeyRelease = false
 
 
 let main = {
@@ -61,8 +121,8 @@ let main = {
         return 1
       }
     }
-    ballX = (Math.floor(Math.random() * (1 + 150 - 50)) + 50) * direction()
-    ballY = (Math.floor(Math.random() * (1 + 150 - 50)) + 50) * direction()
+    ballX = (Math.floor(Math.random() * (1 + 150 - 50)) + 150) * direction()
+    ballY = (Math.floor(Math.random() * (1 + 150 - 50)) + 175) * direction()
     ball.body.velocity.setTo(ballX, ballY)
     ball.body.bounce.set(1);
 
@@ -72,19 +132,58 @@ let main = {
 
   update: function() {
 
+
+    if ( currentGame.player1 === socket.id ) {
+
+    let setBallData = function() {
+      return {
+        x : ball.body.x,
+        y : ball.body.y,
+        xv : ball.body.velocity.x,
+        yv : ball.body.velocity.y
+      }
+    }
+
+    let ballData = setBallData()
+
+    let emitBallData = function() {
+      console.log("EMIT BALL DATA", ballData)
+      socket.emit('ballData', ballData)
+    }
+
+    emitBallData()
+
+    // setInterval(emitBallData, 1000)
+
+    }
+
+
+    // console.log('player1Moving', player1Moving)
+    // console.log('player2Moving', player2Moving)
+
     // if ( Object.keys(globalData).length === 0 && globalData.constructor === Object ) {
     // } else {
-      if (globalData.player1_y) {
-        // console.log("Player one coordinates set");
-        player1.body.x = globalData.player1_x
-        player1.body.y = globalData.player1_y
-      } else if (globalData.player2_y) {
-        // console.log("Player two coordinates set");
-        player2.body.x = globalData.player2_x
-        player2.body.y = globalData.player2_y
-        ball.body.x = globalData.ball_x
-        ball.body.y = globalData.ball_y
-      }
+      // if (globalData.player1_y) {
+      //   // console.log("Player one coordinates set");
+      //   player1.body.x = globalData.player1_x
+      //   player1.body.y = globalData.player1_y
+      // } else if (globalData.player2_y) {
+      //   // console.log("Player two coordinates set");
+      //   player2.body.x = globalData.player2_x
+      //   player2.body.y = globalData.player2_y
+      //   ball.body.x = globalData.ball_x
+      //   ball.body.y = globalData.ball_y
+      // }
+    // }
+
+    // if (player1Moving) {
+    //   player1.body.x = globalData.player1_x
+    //   player1.body.y = globalData.player1_y
+    //   player1.body.velocity.y = globalData.player1_velocity
+    // } else if (player2Moving) {
+    //   player2.body.x = globalData.player2_x
+    //   player2.body.y = globalData.player2_y
+    //   player2.body.velocity.y = globalData.player2_velocity
     // }
 
 
@@ -103,6 +202,18 @@ let main = {
     }
     accelBall()
 
+    let data = determinePlayer(currentGame, socket, player1, player2);
+
+
+
+
+    //
+
+
+
+
+    //
+
     //movement
     player1.body.velocity.y = 0;
     player1.body.velocity.x = 0;
@@ -111,20 +222,84 @@ let main = {
     player2.body.velocity.y = 0;
     player2.body.velocity.x = 0;
 
+
     if ( currentGame.player1 === socket.id ) {
+
+      player2.body.velocity.y = opponentVelocity
+
       if(cursors.up.isDown) {
-        player1.body.velocity.y -= 250;
+        if(upKeyPress === false) {
+          player1.body.velocity.y -= 250
+          data.player1_velocity -= 250
+          socket.emit('player1Move', data);
+          // setBallData();
+          // socket.emit('ballData', ballData);
+          upKeyPress = true
+        } else {
+          player1.body.velocity.y -= 250;
+        }
+      } else {
+        if (upKeyPress === true)
+        data.player1_velocity = 0
+        socket.emit('player1Move', data);
+        // setBallData();
+        // socket.emit('ballData', ballData);
+        upKeyPress = false
       }
-      else if(cursors.down.isDown) {
-        player1.body.velocity.y += 250;
+
+      if(cursors.down.isDown) {
+        if(downKeyPress === false) {
+          player1.body.velocity.y += 250;
+          socket.emit('player1Move', data);
+          downKeyPress = true
+        } else {
+          player1.body.velocity.y += 250;
+        }
+      } else {
+        if (downKeyPress === true)
+        data.player1_velocity = 0
+        socket.emit('player1Move', data);
+        downKeyPress = false
       }
-    } else if ( currentGame.player2 === socket.id ) {
+
+
+
+    }
+    else if ( currentGame.player2 === socket.id ) {
+
+      player1.body.velocity.y = opponentVelocity
+
       if(cursors.up.isDown) {
-        player2.body.velocity.y -= 250;
+        if(upKeyPress === false) {
+          player2.body.velocity.y -= 250;
+          data.player1_velocity -=250
+          socket.emit('player2Move', data);
+          upKeyPress = true
+        } else {
+          player2.body.velocity.y -= 250;
+        }
+      } else {
+        if (upKeyPress === true)
+        data.player2_velocity = 0
+        socket.emit('player2Move', data);
+        upKeyPress = false
       }
-      else if(cursors.down.isDown) {
+
+      if (cursors.down.isDown) {
+        if(downKeyPress === false) {
+          player2.body.velocity.y += 250;
+          socket.emit('player2Move', data);
+          downKeyPress = true
+        } else {
         player2.body.velocity.y += 250;
       }
+    } else {
+      if (downKeyPress === true)
+      data.player2_velocity = 0
+      socket.emit('player2Move', data);
+      downKeyPress = false
+    }
+
     }
 
 
@@ -153,11 +328,52 @@ let main = {
     }
 
     //Store the coordinates of the active players to emit to the server
-    let data = determinePlayer(currentGame, socket, player1, player2);
-    socket.emit('update coordinates', data);
 
   },
   render: function() {
     // game.debug.spriteInfo(ball, 32, 32);
   }
+
+  //
+
+
 }
+
+
+// if ( currentGame.player1 === socket.id ) {
+//
+// let setBallData = function() {
+//   return {
+//     x : ball.body.x,
+//     y : ball.body.y,
+//     xv : ball.body.velocity.x,
+//     yv : ball.body.velocity.y
+//   }
+// }
+//
+// let ballData = setBallData()
+//
+// let emitBallData = function() {
+//   console.log("EMIT BALL DATA", ballData)
+//   socket.emit('ballData', ballData)
+// }
+//
+
+
+// setInterval(emitBallData, 1000)
+//
+// }
+
+
+
+// let refresh = function () {
+//   let data = determinePlayer(currentGame, socket, player1, player2);
+//   console.log("REFRESH")
+//
+//   // ball.body.x = globalData.ball_x
+//   // ball.body.y = globalData.ball_y
+//   socket.emit('update coordinates', data);
+// }
+//
+//
+// setInterval(refresh, 1000)
