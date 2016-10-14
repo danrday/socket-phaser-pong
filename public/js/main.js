@@ -25,9 +25,9 @@ const determinePlayer = function( currentGame, socket, player1, player2 ) {
     return {
       player2_x: player2.body.x,
       player2_y: player2.body.y,
-      player2_velocity: player2.body.velocity.y,
-      ball_x: ball.body.x,
-      ball_y: ball.body.y
+      player2_velocity: player2.body.velocity.y
+      // ball_x: ball.body.x,
+      // ball_y: ball.body.y
     }
   }
 }
@@ -46,6 +46,16 @@ let player1Moving = false;
 let player2Moving = false;
 
 let opponentVelocity = 0;
+
+socket.on('serverBallData', data => {
+  if ( currentGame.player2 === socket.id ) {
+    ball.body.x = data.x
+    ball.body.y = data.y
+    ball.body.velocity.x = data.xv
+    ball.body.velocity.y = data.yv
+  }
+})
+
 
 socket.on('player1Change', data=> {
   console.log('player1data', data)
@@ -75,7 +85,9 @@ socket.on('player2Change', data=> {
 let upKeyPress = false
 let downKeyPress = false
 
-let initialBallState = null
+
+
+
 // let upKeyRelease = false
 // let downKeyRelease = false
 
@@ -118,6 +130,8 @@ let main = {
   },
 
   update: function() {
+
+
 
     // console.log('player1Moving', player1Moving)
     // console.log('player2Moving', player2Moving)
@@ -165,6 +179,32 @@ let main = {
 
     let data = determinePlayer(currentGame, socket, player1, player2);
 
+
+
+
+    //
+
+    let setBallData = function() {
+      return {
+        x : ball.body.x,
+        y : ball.body.y,
+        xv : ball.body.velocity.x,
+        yv : ball.body.velocity.y
+      }
+    }
+
+    let ballData = setBallData()
+
+    let emitBallData = function() {
+      console.log("EMIT BALL DATA", ballData)
+      socket.emit('ballData', ballData)
+    }
+
+    setInterval(emitBallData, 1000)
+
+
+    //
+
     //movement
     player1.body.velocity.y = 0;
     player1.body.velocity.x = 0;
@@ -183,6 +223,8 @@ let main = {
           player1.body.velocity.y -= 250
           data.player1_velocity -= 250
           socket.emit('player1Move', data);
+          setBallData();
+          socket.emit('ballData', ballData);
           upKeyPress = true
         } else {
           player1.body.velocity.y -= 250;
@@ -191,6 +233,8 @@ let main = {
         if (upKeyPress === true)
         data.player1_velocity = 0
         socket.emit('player1Move', data);
+        setBallData();
+        socket.emit('ballData', ballData);
         upKeyPress = false
       }
 
@@ -279,7 +323,13 @@ let main = {
     // game.debug.spriteInfo(ball, 32, 32);
   }
 
+  //
+
+
 }
+
+
+
 
 
 
