@@ -3,12 +3,12 @@ extends layout.pug
 block content
 
   body
-    h1 Pong
+    h1 Socket Phaser Pong
     p
-      a(href="/game/new") New Game
+      a(href="/game/new") Create New Game
 
     h3 Join a game:
 
     for game in games
       p
-        a(href=`/game/${game._id}`) Join Game #{Math.floor(Math.random() * (1000 - 0 + 1)) + 0}: Waiting for second player
+        a.blink(href=`/game/${game._id}`) Join Game #{game.gameDisplayId}: Waiting for second player

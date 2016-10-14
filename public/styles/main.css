@@ -33,3 +33,26 @@ canvas {
 #gameDiv {
   width: auto;
 }
+
+.blink {
+  animation-duration: 4s;
+  animation-name: blink-item;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink-item {
+  0% {
+    color: white;
+  }
+  25% {
+    color: white;
+  }
+  50% {
+    color: green;
+  }
+  75% {
+    color: white;
+  }
+  100% {
+    color: white;
+}

@@ -33,7 +33,7 @@ app.get('/game/singleplayer', (req, res) => {
 })
 
 app.get('/game/twoplayer', (req, res) => {
-  Game.create({ gameType: 'multiple' })
+  Game.create({ gameType: 'multiple', gameDisplayId: Math.floor(Math.random() * (1000 - 0 + 1)) + 0 })
   .then(game => res.redirect(`/game/${game._id}`))
 })
 
@@ -73,7 +73,8 @@ const Game = mongoose.model('game', {
   result: String,
   player1: String,
   player2: String,
-  gameType: String
+  gameType: String,
+  gameDisplayId: String
 })
 
 
